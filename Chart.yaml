@@ -1,0 +1,14 @@
+Description: Empty mxnet ml chart
+Engine: gotpl
+Home: http://kuberlab.com
+Icon: https://storage.googleapis.com/kuberlab/static/favicon.ico
+Keywords:
+- kubernetes
+- mxnet
+- hello
+Maintainers:
+- Email: agunin@kuberlab.com
+  Name: Gunin Alexander
+Name: mxnet-mlapp
+Version: 1.0.0
+Type: mlapp

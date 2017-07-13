@@ -1,0 +1,46 @@
+Args: --data_dir=/workspace/data --log_dir=$RUNDIR
+Cmd: hello.py
+EnvVars: []
+ExecutionDir: /src/mxnet-mlapp
+Images:
+  BaseImage: kuberlab/mlboard-jupyter-mxnet:latest
+  GpuImage:  kuberlab/mlboard-jupyter-mxnet:latest-gpu
+  PSImage:  kuberlab/mlboard-jupyter-mxnet:latest
+Jupyter:
+  UseGPU: false
+  Image: kuberlab/mlboard-jupyter-mxnet:latest
+MonitoringNamespace: kuberlab
+Requests:
+  CPU: 100m
+  CPULimit: 8000m
+  GPU: 1
+  Memory: 2Gi
+  MemoryLimit: 64Gi
+  PsPods: 0
+  WorkerPods: 0
+Volumes:
+- isLibDir: false
+  isTrainLogDir: true
+  mountPath: /training
+  name: training
+  clusterStorage: {{ .storage }}
+  subPath: training
+- gitRepo:
+    repository: https://github.com/kuberlab-catalog/mxnet-mlapp
+  isLibDir: false
+  isTrainLogDir: false
+  mountPath: /src
+  name: src
+  subPath: ""
+- isLibDir: true
+  isTrainLogDir: false
+  mountPath: /workspace/lib
+  name: lib
+  clusterStorage: {{ .storage }}
+  subPath: lib
+- isLibDir: false
+  isTrainLogDir: false
+  mountPath: /workspace/data
+  name: data
+  clusterStorage: {{ .storage }}
+  subPath: /mnist-data
