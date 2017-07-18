@@ -1,11 +1,11 @@
 Description: Empty mxnet ml chart
 Engine: gotpl
 Home: http://kuberlab.com
-Icon: https://storage.googleapis.com/kuberlab/static/favicon.ico
+Icon: https://raw.githubusercontent.com/dmlc/dmlc.github.io/master/img/logo-m/mxnet2.png
 Keywords:
 - kubernetes
 - mxnet
-- hello
+- kuberlab
 Maintainers:
 - Email: agunin@kuberlab.com
   Name: Gunin Alexander
