@@ -35,6 +35,9 @@ spec:
         cpu: "kuberlab/mlboard-jupyter-mxnet"
       command: python
       args: hello.py
+      env:
+      - name: PYTHONPATH
+        value: /usr/local
       workdir: "$SRC_DIR"
       resources:
         accelerators:
@@ -58,6 +61,9 @@ spec:
     images:
       gpu: "kuberlab/mlboard-jupyter-mxnet:latest-gpu"
       cpu: "kuberlab/mlboard-jupyter-mxnet:latest"
+    env:
+    - name: PYTHONPATH
+      value: /usr/local
     resources:
       requests:
         cpu: 100m
