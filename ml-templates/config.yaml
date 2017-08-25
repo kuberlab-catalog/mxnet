@@ -31,13 +31,13 @@ spec:
       maxRestartCount: 0
       allowFail: true
       images:
-        gpu: "kuberlab/mlboard-jupyter-mxnetlatest-gpu"
-        cpu: "kuberlab/mlboard-jupyter-mxnet"
+        gpu: "kuberlab/mlboard-jupyter-mxnet:latest-gpu"
+        cpu: "kuberlab/mlboard-jupyter-mxnet:latest"
       command: python
       args: hello.py
       env:
       - name: PYTHONPATH
-        value: /usr/local
+        value: /mxnet/python:/usr/local
       workdir: "$SRC_DIR"
       resources:
         accelerators:
@@ -63,7 +63,7 @@ spec:
       cpu: "kuberlab/mlboard-jupyter-mxnet:latest"
     env:
     - name: PYTHONPATH
-      value: /usr/local
+      value: /mxnet/python:/usr/local
     resources:
       requests:
         cpu: 100m
