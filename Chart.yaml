@@ -1,14 +1,16 @@
-Description: Empty mxnet ml chart
+Description: MXNet Template
 Engine: gotpl
 Home: http://kuberlab.com
 Icon: https://raw.githubusercontent.com/dmlc/dmlc.github.io/master/img/logo-m/mxnet2.png
 Keywords:
 - kubernetes
 - mxnet
+- template
 - kuberlab
+- kuberlabapptemplate
 Maintainers:
 - Email: agunin@kuberlab.com
   Name: Gunin Alexander
-Name: mxnet-mlapp
+Name: mxnet
 Version: 1.0.0
 Type: mlapp
