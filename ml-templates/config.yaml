@@ -2,13 +2,13 @@ kind: MLApp
 metadata:
   name: mxnet
 spec:
-  package_manager: "pip{{.python_version.value}}"
+  package_manager: "pip2"
   packages:
     - names:
       {{- range $i, $value := .packages }}
       - "{{ $value }}"
       {{- end }}
-      manager: "pip{{.python_version.value}}"
+      manager: "pip2"
   tasks:
   - name: prepare-data
     resources:
@@ -23,23 +23,16 @@ spec:
       workdir: "$DATA_DIR"
       volumes:
       - name: data
-  - name: standalone
+  - name: train
     resources:
     - name: worker
       replicas: 1
       restartPolicy: Never
       maxRestartCount: 0
       allowFail: true
-      {{- if eq .python_version.value "3" }}
       images:
-        gpu: "tensorflow/tensorflow:{{.mxnet_version.value}}-gpu-py3"
-        cpu: "tensorflow/tensorflow:{{.mxnet_version.value}}-py3"
-      {{- end }}
-      {{- if eq .python_version.value "2" }}
-      images:
-        gpu: "tensorflow/tensorflow:{{.mxnet_version.value}}-gpu"
-        cpu: "tensorflow/tensorflow:{{.mxnet_version.value}}"
-      {{- end }}
+        gpu: "kuberlab/mlboard-jupyter-mxnetlatest-gpu"
+        cpu: "kuberlab/mlboard-jupyter-mxnet"
       command: python
       args: hello.py
       workdir: "$SRC_DIR"
@@ -59,149 +52,12 @@ spec:
       - name: src
       - name: data
       - name: code
-  - name: parallel
-    resources:
-    - name: worker
-      replicas: 1
-      restartPolicy: Never
-      maxRestartCount: 0
-      allowFail: true
-      {{- if eq .python_version.value "3"}}
-      images:
-        gpu: "kuberlab/mlboard-jupyter-mxnet:latest-gpu"
-        cpu: "kuberlab/mlboard-jupyter-mxnet:latest"
-      {{- end }}
-      {{- if eq .python_version.value "2"}}
-      images:
-        gpu: "kuberlab/mlboard-jupyter-mxnet:latest-gpu"
-        cpu: "kuberlab/mlboard-jupyter-mxnet:latest"
-      {{- end }}
-      command: "echo \"WORKER: $REPLICA_INDEX\";echo \"PSS: $PS_NODES\"; echo \"WORKERS: $WORKER_NODES\"; echo \"BUILD: $BUILD_ID\"; python"
-      args: hello.py
-      workdir: "$SRC_DIR"
-      resources:
-        accelerators:
-          gpu: 0
-          dedicated_gpu: true
-        requests:
-          cpu: 100m
-          memory: 256Mi
-        limits:
-          cpu: 1000m
-          memory: 4Gi
-      port: 2222
-      volumes:
-      - name: lib
-      - name: training
-      - name: src
-      - name: data
-      - name: code
-    - name: ps
-      replicas: 1
-      restartPolicy: Never
-      maxRestartCount: 0
-      {{- if eq .python_version.value "3"}}
-      images:
-        gpu: "kuberlab/mlboard-jupyter-mxnet:latest-gpu"
-        cpu: "kuberlab/mlboard-jupyter-mxnet:latest"
-       {{- end }}
-      {{- if eq .python_version.value "2"}}
-      images:
-        gpu: "kuberlab/mlboard-jupyter-mxnet:latest-gpu"
-        cpu: "kuberlab/mlboard-jupyter-mxnet:latest"
-       {{- end }}
-      command: "echo \"PS: $REPLICA_INDEX\";echo \"PSS: $PS_NODES\"; echo \"WORKERS: $WORKER_NODES\"; echo \"BUILD: $BUILD_ID\"; python"
-      args: hello.py
-      workdir: "$SRC_DIR"
-      port: 2222
-      volumes:
-      - name: src
-      - name: code
-  - name: export
-    resources:
-    - name: worker
-      replicas: 1
-      restartPolicy: Never
-      maxRestartCount: 0
-      allowFail: true
-      {{- if eq .python_version.value "3"}}
-      images:
-        gpu: "kuberlab/mlboard-jupyter-mxnet:latest-gpu"
-        cpu: "kuberlab/mlboard-jupyter-mxnet:latest"
-       {{- end }}
-      {{- if eq .python_version.value "2"}}
-      images:
-        gpu: "kuberlab/mlboard-jupyter-mxnet:latest-gpu"
-        cpu: "kuberlab/mlboard-jupyter-mxnet:latest"
-       {{- end }}
-      command: "echo \"BUILD: $BUILD_ID\"; python"
-      args: hello.py
-      workdir: "$SRC_DIR"
-      resources:
-        accelerators:
-          gpu: 0
-          dedicated_gpu: true
-        requests:
-          cpu: 100m
-          memory: 256Mi
-        limits:
-          cpu: 1000m
-          memory: 4Gi
-      volumes:
-      - name: lib
-      - name: training
-      - name: src
-      - name: data
-      - name: code
-  - name: workflow
-    resources:
-    - name: tasks
-      replicas: 1
-      restartPolicy: Never
-      maxRestartCount: 0
-      allowFail: true
-      {{- if eq .python_version.value "3" }}
-      images:
-        gpu: "kuberlab/mlboard-jupyter-mxnet:latest-gpu"
-        cpu: "kuberlab/mlboard-jupyter-mxnet:latest"
-      {{- end }}
-      {{- if eq .python_version.value "2" }}
-      images:
-       gpu: "kuberlab/mlboard-jupyter-mxnet:latest-gpu"
-       cpu: "kuberlab/mlboard-jupyter-mxnet:latest"
-      {{- end }}
-      command: python
-      args: run_tasks.py
-      workdir: "$SRC_DIR"
-      resources:
-        accelerators:
-          gpu: 0
-          dedicated_gpu: true
-        requests:
-          cpu: 100m
-          memory: 256Mi
-        limits:
-          cpu: 500m
-          memory: 1Gi
-      volumes:
-      - name: lib
-      - name: training
-      - name: src
-      - name: data
-      - name: code
   uix:
   - name: jupyter
     displayName: Jupyter
-    {{- if eq .python_version.value "3"}}
     images:
       gpu: "kuberlab/mlboard-jupyter-mxnet:latest-gpu"
       cpu: "kuberlab/mlboard-jupyter-mxnet:latest"
-    {{- end }}
-    {{- if eq .python_version.value "2"}}
-    images:
-      gpu: "kuberlab/mlboard-jupyter-mxnet:latest-gpu"
-      cpu: "kuberlab/mlboard-jupyter-mxnet:latest"
-    {{- end }}
     resources:
       requests:
         cpu: 100m
@@ -225,64 +81,6 @@ spec:
       mountPath: /notebooks/data
     - name: code
       mountPath: /notebooks
-  - name: tensorboard
-    displayName: Tensorboard
-    command: "tensorboard"
-    args: "--logdir=$TRAINING_DIR"
-    images:
-      cpu: "lsheiba/tensorflow-ls-devel"
-    ports:
-    - port: 6006
-      targetPort: 6006
-      protocol: TCP
-      name: http
-    volumes:
-    - name: training
-  serving:
-  - name: serving
-    displayName: Serving
-    {{- if .tf_serving }}
-    images:
-      gpu: "kuberlab/mlboard-jupyter-mxnet:latest-gpu"
-      cpu: "kuberlab/mlboard-jupyter-mxnet:latest"
-    command: tensorflow_model_server
-    args: "--port={{ .serving_port }} --model_name=$TASK_NAME --model_base_path=$TRAINING_DIR/$BUILD_ID"
-    {{- else }}
-    {{- if eq .python_version.value "3"}}
-    images:
-      gpu: "kuberlab/mlboard-jupyter-mxnet:latest-gpu"
-      cpu: "kuberlab/mlboard-jupyter-mxnet:latest"
-    {{- end }}
-    {{- if eq .python_version.value "2"}}
-    images:
-      gpu: "kuberlab/mlboard-jupyter-mxnet:latest-gpu"
-      cpu: "kuberlab/mlboard-jupyter-mxnet:latest"
-    {{- end }}
-    workdir: "$SRC_DIR"
-    command: python
-    args: hello.py
-    {{- end }}
-    resources:
-      accelerators:
-        gpu: 0
-        dedicated_gpu: true
-      requests:
-        cpu: 100m
-        memory: 128Mi
-      limits:
-        cpu: 1000m
-        memory: 4Gi
-    ports:
-    - port: {{ .serving_port }}
-      targetPort: {{ .serving_port }}
-      protocol: TCP
-      name: http
-    volumes:
-    - name: training
-    - name: data
-    - name: src
-    - name: lib
-    - name: code
   volumes:
   - isLibDir: false
     isTrainLogDir: true
