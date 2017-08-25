@@ -1,2 +1,2 @@
-# mxnet-mlapp
-mxnet-mlapp
+# MXNet
+MXNet template
