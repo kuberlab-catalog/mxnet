@@ -23,7 +23,7 @@ spec:
       workdir: "$DATA_DIR"
       volumes:
       - name: data
-  - name: train
+  - name: standalone
     resources:
     - name: worker
       replicas: 1
@@ -31,13 +31,10 @@ spec:
       maxRestartCount: 0
       allowFail: true
       images:
-        gpu: "kuberlab/mlboard-jupyter-mxnet:latest-gpu"
-        cpu: "kuberlab/mlboard-jupyter-mxnet:latest"
-      command: python
+        gpu: "kuberlab/mlboard-jupyter-mxnet:gpu_{{.mxnet_version.value}}"
+        cpu: "kuberlab/mlboard-jupyter-mxnet:{{.mxnet_version.value}}"
+      command: python2
       args: hello.py
-      env:
-      - name: PYTHONPATH
-        value: /mxnet/python:/usr/local
       workdir: "$SRC_DIR"
       resources:
         accelerators:
@@ -59,12 +56,12 @@ spec:
   - name: jupyter
     displayName: Jupyter
     images:
-      gpu: "kuberlab/mlboard-jupyter-mxnet:latest-gpu"
-      cpu: "kuberlab/mlboard-jupyter-mxnet:latest"
-    env:
-    - name: PYTHONPATH
-      value: /mxnet/python:/usr/local
+      gpu: "kuberlab/mlboard-jupyter-mxnet:gpu_{{.mxnet_version.value}}"
+      cpu: "kuberlab/mlboard-jupyter-mxnet:{{.mxnet_version.value}}"
     resources:
+      accelerators:
+        gpu: 0
+        dedicated_gpu: true
       requests:
         cpu: 100m
         memory: 256Mi
@@ -87,6 +84,36 @@ spec:
       mountPath: /notebooks/data
     - name: code
       mountPath: /notebooks
+  serving:
+  - name: serving
+    displayName: Serving
+    images:
+      gpu: "kuberlab/mlboard-jupyter-mxnet:gpu_{{.mxnet_version.value}}"
+      cpu: "kuberlab/mlboard-jupyter-mxnet:{{.mxnet_version.value}}2"
+    workdir: "$SRC_DIR"
+    command: python
+    args: hello.py
+    resources:
+      accelerators:
+        gpu: 0
+        dedicated_gpu: true
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 1000m
+        memory: 4Gi
+    ports:
+    - port: {{ .serving_port }}
+      targetPort: {{ .serving_port }}
+      protocol: TCP
+      name: http
+    volumes:
+    - name: training
+    - name: data
+    - name: src
+    - name: lib
+    - name: code
   volumes:
   - isLibDir: false
     isTrainLogDir: true
@@ -100,7 +127,9 @@ spec:
     isTrainLogDir: false
     mountPath: /src
     name: src
+    {{- if .src_path }}
     subPath: "{{ .src_path }}"
+    {{- end }}
   - isLibDir: true
     isTrainLogDir: false
     mountPath: /workspace/lib
