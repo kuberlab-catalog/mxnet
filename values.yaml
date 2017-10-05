@@ -5,7 +5,7 @@ storage:
     kind: cluster_storage
 
  src: https://github.com/kuberlab-catalog/mxnet
- src_path: caffe2-mlapp/src
+ src_path: mxnet/src
 
  data_path: data
 
