@@ -4,10 +4,7 @@ storage:
     name: "Storage Configuration"
     kind: cluster_storage
 
- src: https://github.com/kuberlab-catalog/mxnet
- src_path: mxnet/src
-
- data_path: data
+data_path: data
 
 mxnet_version:
    value: "0.11.0"
