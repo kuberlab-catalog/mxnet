@@ -1,4 +1,4 @@
-# MXNET ML project
+# MXNET
 
 This is the base MXNET project.
 
