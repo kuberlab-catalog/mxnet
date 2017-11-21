@@ -7,17 +7,17 @@ storage:
 data_path: data
 
 mxnet_version:
-   value: "0.11.0"
-   wizard:
-     name: "mxnet version"
-     kind: select
-     options:
-     - "0.94"
-     - "0.10.0"
-     - "0.11.0"
+  value: "0.11.0"
+  wizard:
+    name: "mxnet version"
+    kind: select
+    options:
+    - "0.94"
+    - "0.10.0"
+    - "0.11.0"
 
- serving_port: 9000
+serving_port: 9000
 
- packages:
-  - "git+https://github.com/kuberlab/python-mlboardclient.git"
+packages:
+- "git+https://github.com/kuberlab/python-mlboardclient.git"
 
