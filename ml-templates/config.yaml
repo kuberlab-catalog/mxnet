@@ -21,6 +21,9 @@ spec:
         cpu: busybox
       command: "echo \"Uploading Data\";echo \"Done!!!\""
       workdir: "$DATA_DIR"
+      env:
+      - name: PYTHONPATH
+        value: /mxnet/python:/usr/local
       volumes:
       - name: data
   - name: standalone
@@ -35,6 +38,9 @@ spec:
         cpu: "kuberlab/mlboard-jupyter-mxnet:{{.mxnet_version.value}}"
       command: "python2 hello.py"
       workdir: "$SRC_DIR"
+      env:
+      - name: PYTHONPATH
+        value: /mxnet/python:/usr/local
       resources:
         accelerators:
           gpu: 0
@@ -60,6 +66,9 @@ spec:
       limits:
         cpu: 1000m
         memory: 4Gi
+    env:
+    - name: PYTHONPATH
+      value: /mxnet/python:/usr/local
     ports:
     - port: 8888
       targetPort: 8888
@@ -83,6 +92,9 @@ spec:
       limits:
         cpu: 1000m
         memory: 4Gi
+    env:
+    - name: PYTHONPATH
+      value: /mxnet/python:/usr/local
     ports:
     - port: {{ .serving_port }}
       targetPort: {{ .serving_port }}
